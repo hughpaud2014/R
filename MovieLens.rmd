@@ -1,0 +1,84 @@
+To create an R Markdown (`.Rmd`) file for your MovieLens project, you can follow this template. This file will include sections for loading data, preprocessing, model building, evaluation, and conclusions. You can customize it further based on your specific analysis and findings.
+
+```markdown
+---
+title: "MovieLens Recommendation System"
+author: "Your Name"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+This report presents a movie recommendation system using the MovieLens 10M dataset. The goal is to predict movie ratings and evaluate the model's performance using RMSE.
+
+## Data Loading
+
+```{r load-data}
+# Load necessary libraries
+library(tidyverse)
+library(data.table)
+
+# Load the MovieLens dataset
+movies <- fread("ml-10M100K/movies.dat", sep = "::", header = FALSE, col.names = c("MovieID", "Title", "Genres"))
+ratings <- fread("ml-10M100K/ratings.dat", sep = "::", header = FALSE, col.names = c("UserID", "MovieID", "Rating", "Timestamp"))
+```
+
+## Data Preprocessing
+
+```{r preprocess-data}
+# Convert Timestamp to a date format
+ratings$Timestamp <- as.POSIXct(ratings$Timestamp, origin = "1970-01-01")
+
+# Extract year from the movie title
+movies$Year <- as.numeric(sub(".*\\((\\d{4})\\).*", "\\1", movies$Title))
+```
+
+## Data Splitting
+
+```{r split-data}
+set.seed(123) # For reproducibility
+train_indices <- sample(seq_len(nrow(ratings)), size = 0.8 * nrow(ratings))
+train_set <- ratings[train_indices, ]
+validation_set <- ratings[-train_indices, ]
+```
+
+## Model Building
+
+```{r build-model}
+# Example: Using a simple average rating model
+mu <- mean(train_set$Rating)
+
+# Predict ratings in the validation set
+validation_set$PredictedRating <- mu
+```
+
+## Model Evaluation
+
+```{r evaluate-model}
+# Calculate RMSE
+rmse <- sqrt(mean((validation_set$Rating - validation_set$PredictedRating)^2))
+print(paste("RMSE:", rmse))
+```
+
+## Conclusion
+
+The recommendation system was built using a simple average rating model. Future work could involve more sophisticated models such as matrix factorization or collaborative filtering to improve prediction accuracy.
+
+## References
+
+- MovieLens Dataset: [GroupLens](https://grouplens.org/datasets/movielens/)
+- R Markdown: [RStudio](https://rmarkdown.rstudio.com)
+```
+
+### Instructions for Use
+
+1. **Replace Placeholder Text:** Update the title, author, and any placeholder text with your specific details and findings.
+2. **Add Additional Sections:** If you have more complex models or additional analyses, add sections as needed.
+3. **Knit to PDF:** Use RStudio to knit this `.Rmd` file to a PDF document.
+
+This template provides a structured approach to documenting your analysis and findings in a reproducible manner.
